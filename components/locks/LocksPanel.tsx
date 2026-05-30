@@ -1,33 +1,37 @@
+'use client';
+
 import { SlidersHorizontal } from 'lucide-react';
 import { locks } from '@/lib/data';
 import LockCard from './LockCard';
 
 export default function LocksPanel() {
   return (
-    <section aria-labelledby="locks-heading" className="flex flex-col gap-3">
+    <section aria-labelledby="locks-heading" className="flex flex-col gap-4">
+      {/* Header Row */}
       <div className="flex items-center justify-between">
         <h2
           id="locks-heading"
-          className="text-sm font-semibold text-[var(--color-text-secondary)]"
+          className="text-sm font-semibold text-gray-900 flex items-center gap-1.5"
         >
           Locks{' '}
           <span
-            className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--color-surface-3)] text-xs font-bold text-[var(--color-text-primary)] ml-1"
-            aria-label={`${locks.length} locks`}
+            className="text-xs font-normal text-gray-400"
+            aria-label={`${locks.length} locks total`}
           >
             {locks.length}
           </span>
         </h2>
         <button
           aria-label="Locks filter/settings"
-          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[var(--color-surface-3)] transition-colors"
+          className="text-gray-400 hover:text-gray-600 transition-colors p-1"
         >
-          <SlidersHorizontal size={14} className="text-[var(--color-text-muted)]" />
+          <SlidersHorizontal size={14} className="stroke-[2.5]" />
         </button>
       </div>
 
-      <div className="flex flex-col gap-2">
-        {locks.map((lock, i) => (
+      {/* Lock Cards Stack Container */}
+      <div className="flex flex-col gap-4">
+        {locks.slice(0, 2).map((lock, i) => (
           <LockCard key={lock.id} lock={lock} index={i} />
         ))}
       </div>

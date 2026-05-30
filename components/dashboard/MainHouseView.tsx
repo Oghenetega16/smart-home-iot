@@ -8,9 +8,16 @@ import { Camera, Lock, Move, Plus } from 'lucide-react';
 
 const floorViews: FloorView[] = ['1 Flow', '2 Flow', 'Garage'];
 
+// Dictionary map connecting tab selection values to image asset file strings
+const floorImages: Record<FloorView, string> = {
+  '1 Flow': '/download.jpg',
+  '2 Flow': '/download-2.jpg',
+  'Garage': '/download-3.jpg',                        
+};
+
 export default function MainHouseView() {
   const [activeFloor, setActiveFloor] = useState<FloorView>('1 Flow');
-
+  
   return (
     <section
       className="flex flex-col h-full w-full"
@@ -33,7 +40,7 @@ export default function MainHouseView() {
             <button
               key={floor}
               role="tab"
-              aria-selected={activeFloor === floor}
+              aria-label="floor"
               onClick={() => setActiveFloor(floor)}
               className={cn(
                 'px-5 py-1.5 rounded-full text-xs font-medium transition-all duration-200',
@@ -51,17 +58,17 @@ export default function MainHouseView() {
       {/* Main Rendering Container */}
       {/* Set the base wrapper background color to match the image's #F6FCFF */}
       <div 
-        className="flex-1 relative w-full h-full rounded-[32px] overflow-hidden select-none"
+        className="flex-1 relative w-full h-full overflow-hidden select-none"
         style={{ backgroundColor: '#F6FCFF' }}
       >
-        {/* The House Image Render */}
+        {/* The House Image Render changes dynamically based on selection map lookup */}
         <Image
-          src="/download.jpg" 
+          src={floorImages[activeFloor]} 
           alt={`House view: ${activeFloor}`}
           fill
           priority
           sizes="(max-width: 1200px) 100vw, 100vw"
-          className="w-full h-full object-contain p-4"
+          className="w-full h-full object-contain p-4 transition-all duration-300"
         />
 
         {/* Radial Vignette Mask:

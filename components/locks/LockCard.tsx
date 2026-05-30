@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock, LockOpen } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import type { Lock as LockType } from '@/types';
 import { cn } from '@/lib/data';
 
@@ -10,115 +10,98 @@ interface LockCardProps {
   index: number;
 }
 
-// Door lock SVG illustrations
-const LockIllustration = ({ status }: { status: 'locked' | 'unlocked' }) => (
-  <div
-    className={cn(
-      'w-14 h-16 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden',
-      status === 'locked'
-        ? 'bg-gradient-to-br from-slate-100 to-slate-200'
-        : 'bg-gradient-to-br from-mint-light to-emerald-100'
-    )}
-    style={{
-      background: status === 'locked'
-        ? 'linear-gradient(135deg, #f1f5f9, #e2e8f0)'
-        : 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
-    }}
-    aria-hidden="true"
-  >
-    <svg viewBox="0 0 56 64" fill="none" className="w-12 h-14">
-      {/* Door body */}
-      <rect x="4" y="8" width="48" height="52" rx="4" fill={status === 'locked' ? '#94a3b8' : '#6ee7b7'} opacity="0.3"/>
-      <rect x="6" y="10" width="44" height="48" rx="3" fill={status === 'locked' ? '#cbd5e1' : '#a7f3d0'}/>
-      {/* Keypad */}
-      <rect x="18" y="22" width="20" height="24" rx="3" fill={status === 'locked' ? '#64748b' : '#10b981'}/>
-      {/* Keypad dots */}
-      {[0,1,2,3,4,5].map(i => (
-        <circle key={i} cx={22 + (i % 2) * 12} cy={27 + Math.floor(i / 2) * 7} r="2" fill="white" opacity="0.8"/>
+// Minimal stylized vector representation of the physical smart handle hardware
+const SmartHandleIllustration = ({ status }: { status: 'locked' | 'unlocked' }) => (
+  <div className="w-8 h-14 bg-black rounded-xl p-1.5 flex flex-col items-center justify-between shadow-md relative group-hover:scale-105 transition-transform duration-200">
+    {/* Keypad Interface Region */}
+    <div className="grid grid-cols-2 gap-0.5 w-full justify-items-center opacity-80 mt-0.5">
+      {[...Array(6)].map((_, i) => (
+        <span key={i} className="w-[3px] h-[3px] rounded-full bg-white/90" />
       ))}
-      {/* Handle */}
-      <circle cx="38" cy="37" r="4" fill={status === 'locked' ? '#475569' : '#059669'}/>
-    </svg>
+    </div>
+    {/* Biometric Scanner / Status Light Anchor */}
+    <div className={cn(
+      "w-3 h-3 rounded-full border border-black/40 transition-colors duration-300 shadow-inner mb-2",
+      status === 'locked' ? 'bg-red-500 shadow-red-400/50' : 'bg-emerald-400 shadow-emerald-300/50'
+    )} />
   </div>
 );
 
-export default function LockCard({ lock, index }: LockCardProps) {
+export default function LockCard({ lock }: LockCardProps) {
   const [status, setStatus] = useState(lock.status);
 
   const toggleLock = () => {
-    setStatus(prev => prev === 'locked' ? 'unlocked' : 'locked');
+    setStatus(prev => (prev === 'locked' ? 'unlocked' : 'locked'));
   };
+
+  // Determine battery level styling values for the vertical pill gauge meter
+  const isBatteryLow = lock.battery <= 20;
+  const fillGradient = isBatteryLow 
+    ? 'from-red-400 to-orange-400' 
+    : status === 'locked' 
+      ? 'from-emerald-400 to-teal-400' 
+      : 'from-indigo-400 to-purple-400';
 
   return (
     <article
-      className={cn(
-        'card p-3 animate-fade-in-up',
-        `stagger-${index + 3}`
-      )}
+      className="flex items-center justify-between bg-transparent select-none"
       aria-label={`${lock.name}: ${status}`}
     >
-      <div className="flex items-center gap-3">
-        <LockIllustration status={status} />
+      {/* LEFT COLUMN: Main Integrated Switch Controller Interface Panel */}
+      <button
+        onClick={toggleLock}
+        className="flex-1 max-w-[180px] rounded-[24px] p-3 bg-gray-100 hover:bg-gray-200/80 active:scale-[0.98] transition-all duration-200 flex items-center gap-3 text-left relative overflow-hidden shadow-sm group group-items"
+      >
+        {/* Hardware Visual Component */}
+        <SmartHandleIllustration status={status} />
 
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">{lock.name}</p>
-          <p
-            className={cn(
-              'text-xs font-medium capitalize mt-0.5',
-              status === 'locked' ? 'text-[var(--color-locked)]' : 'text-[var(--color-unlocked)]'
-            )}
-          >
-            {status}
+        {/* Text descriptions labels */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <h3 className="text-xs font-semibold text-gray-900 truncate leading-tight">
+            {lock.name}
+          </h3>
+          <p className="text-[10px] text-gray-400 font-light mt-0.5 tracking-wide">
+            {status === 'locked' ? 'Locked' : 'Unlocked'}
           </p>
 
-          {/* Battery */}
-          <div className="mt-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-[var(--color-text-muted)]">Battery</span>
-              <span className="text-xs font-medium text-[var(--color-text-secondary)]">{lock.battery}%</span>
-            </div>
-            <div className="battery-bar w-full">
-              <div
-                className="battery-bar-fill"
-                style={{ width: `${lock.battery}%` }}
-                role="progressbar"
-                aria-valuenow={lock.battery}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`Battery at ${lock.battery}%`}
-              />
-            </div>
+          {/* Symmetrical sliding directional indicator row */}
+          <div className="flex items-center gap-0.5 mt-2 text-gray-400 group-hover:text-gray-700 transition-colors">
+            <ChevronRight size={10} className="stroke-[3px] opacity-40 animate-pulse" />
+            <ChevronRight size={10} className="stroke-[3px] opacity-70" />
+            <ChevronRight size={10} className="stroke-[3px]" />
           </div>
         </div>
-      </div>
+      </button>
 
-      {/* Actions */}
-      <div className="flex gap-2 mt-3">
-        <button
-          onClick={toggleLock}
-          aria-label={status === 'locked' ? 'Unlock' : 'Lock'}
-          className={cn(
-            'flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-all',
-            status === 'locked'
-              ? 'bg-[var(--color-accent-soft)] text-[var(--color-accent)] hover:bg-emerald-100'
-              : 'bg-red-50 text-red-500 hover:bg-red-100'
-          )}
+      {/* RIGHT COLUMN: Isolated Vertical Progress Gauge Pill */}
+      <div className="flex flex-col items-center gap-2 w-12 flex-shrink-0">
+        {/* Percentage Label Header */}
+        <span className="text-[11px] font-semibold text-gray-900 tracking-tight">
+          {lock.battery}%
+        </span>
+
+        {/* Outer tracking vertical structural channel */}
+        <div 
+          className="w-8 h-16 rounded-full bg-gray-100 p-1 flex flex-col justify-end relative shadow-inner overflow-hidden"
+          role="progressbar"
+          aria-valuenow={lock.battery}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${lock.name} battery meter`}
         >
-          {status === 'locked'
-            ? <><LockOpen size={12} aria-hidden="true" /> Unlock</>
-            : <><Lock size={12} aria-hidden="true" /> Lock</>
-          }
-        </button>
-        <button
-          aria-label={`${lock.name} settings`}
-          className="w-9 flex items-center justify-center rounded-xl bg-[var(--color-surface-3)] hover:bg-[var(--color-border)] transition-colors"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <circle cx="7" cy="3" r="1.2" fill="currentColor" className="text-[var(--color-text-muted)]"/>
-            <circle cx="7" cy="7" r="1.2" fill="currentColor" className="text-[var(--color-text-muted)]"/>
-            <circle cx="7" cy="11" r="1.2" fill="currentColor" className="text-[var(--color-text-muted)]"/>
-          </svg>
-        </button>
+          {/* Internal level fill cylinder layer */}
+          <div
+            className={cn(
+              "w-full rounded-full bg-gradient-to-t transition-all duration-500 ease-out",
+              fillGradient
+            )}
+            style={{ height: `${lock.battery}%` }}
+          />
+        </div>
+        
+        <span className="text-[9px] font-light text-gray-400 tracking-tight select-none">
+          Battery
+        </span>
       </div>
     </article>
   );

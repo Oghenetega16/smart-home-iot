@@ -30,7 +30,7 @@ function MembersRow() {
             >
               <span className="sr-only">{member.initials}</span>
               <Image 
-                src={`/member-${i + 1}.jpeg`} 
+                src={`/member-${i + 1}.jpg`} 
                 alt={member.name} 
                 width={32} 
                 height={32} 
@@ -67,6 +67,7 @@ function CalendarWeek({ activeDay, onSelect }: { activeDay: string; onSelect: (d
             <button
               key={day}
               role="tab"
+              aria-label="Select day"
               aria-selected={isActive}
               onClick={() => onSelect(day)}
               className={cn(
@@ -174,7 +175,7 @@ export default function SecurityPanel() {
         >
           <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gray-200">
             <Image 
-              src="/avatar.jpeg" 
+              src="/avatar.jpg" 
               alt="Shopia W." 
               fill
               sizes="24px"
