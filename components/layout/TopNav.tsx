@@ -26,7 +26,7 @@ export default function TopNav() {
             aria-hidden="true"
           >
             <Image 
-              src="/front.jpg" 
+              src="/camera-3.jpg" 
               alt="Home" 
               fill
               sizes="36px"
